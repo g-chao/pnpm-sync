@@ -1,1 +1,1 @@
-# pnpm-sync
+# pnpm-sync-demo
