@@ -1,5 +1,5 @@
 {
-  "name": "lib1",
+  "name": "app3",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,10 +9,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "peerDependencies": {
-    "react": "15 || 16"
-  },
   "dependencies": {
+    "lib1": "workspace:*",
     "pnpm-sync": "workspace:*"
   },
   "devDependencies": {
@@ -20,7 +18,6 @@
     "@types/node": "^20.8.10",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.2.2",
-    "react": "~15.7.0"
+    "typescript": "^5.2.2"
   }
 }
