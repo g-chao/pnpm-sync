@@ -11,8 +11,8 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16",
     "types": [
-      "jest", "node"
+      "node"
     ]
   },
-  "include": ["src", "test"]
+  "include": ["src"]
 }

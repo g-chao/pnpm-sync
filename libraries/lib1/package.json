@@ -2,9 +2,10 @@
   "name": "lib1",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "module": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc && pnpm-sync",
+    "start": "tsc -w"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +13,9 @@
   "peerDependencies": {
     "react": "15 || 16"
   },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "pnpm-sync": "workspace:*"
   },

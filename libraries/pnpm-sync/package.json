@@ -22,7 +22,10 @@
     "commander": "^11.1.0",
     "json5": "^2.2.3",
     "@rushstack/node-core-library": "^3.61.0",
-    "@rushstack/package-extractor": "^0.6.12"
+    "@rushstack/package-extractor": "^0.6.12",
+    "@microsoft/rush-lib": "~5.110.1",
+    "@pnpm/lockfile-file": "~8.1.4",
+    "@pnpm/logger": "~5.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.7",

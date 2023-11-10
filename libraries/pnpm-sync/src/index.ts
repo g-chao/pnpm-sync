@@ -10,6 +10,8 @@ program.version(version);
 
 program
   .description('Execute actions defined under node_modules/.pnpm-sync.json')
+  .usage('[OPTIONS]...')
+  .option('-p, --prepare', 'Prepare the pnpm-sync.json')
   .action(pnpmSync);
 
 program.parse();

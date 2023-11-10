@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "postinstall": "pnpm-sync --prepare"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +14,11 @@
   "dependencies": {
     "lib1": "workspace:*",
     "pnpm-sync": "workspace:*"
+  },
+  "dependenciesMeta": {
+    "lib1": {
+      "injected": true
+    }
   },
   "devDependencies": {
     "@types/jest": "^29.5.7",
