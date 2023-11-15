@@ -40,7 +40,7 @@ Under `libraries` folder, the `lib1` is the sample lib used by apps.
 
 ### Run `rush install` to install all dependencies
 
-You can check node_modules folder under each app to see the installation different for injected dependencies and normal dependencies.<br>
+You can check node_modules folder under each app to see the installation difference for injected dependencies and normal dependencies.<br>
 For projects have the injected workspace dependency `lib1`, the `lib1` will link to pnpm store.
 ![Alt text](image-1.png)
 For projects have the normal workspace dependency `lib1`, the `lib1` will link to the source code.
