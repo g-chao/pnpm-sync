@@ -1,4 +1,3 @@
-import JSON5 from 'json5';
 import path from 'path';
 import fs from 'fs';
 import { FileSystem, Async } from '@rushstack/node-core-library';
@@ -9,12 +8,12 @@ export async function pnpmSyncCopy(): Promise<void> {
   const pnpmSyncJsonPath = 'node_modules/.pnpm-sync.json';
 
   if (!FileSystem.exists(pnpmSyncJsonPath)) {
-    //TO DO, what shall we do if .pnpm-sync.json is not exist
+    console.warn('You are executing pnpm-sync for a package, but we can not find the .pnpm-sync.json inside node_modules folder')
     return;
   }
 
   //read the .pnpm-sync.json
-  const pnpmSyncJson = JSON5.parse(FileSystem.readFile(pnpmSyncJsonPath).toString());
+  const pnpmSyncJson = JSON.parse(FileSystem.readFile(pnpmSyncJsonPath).toString());
   const { sourceFolder, targetFolders } = pnpmSyncJson.postbuildInjectedCopy;
   const sourcePath = path.resolve(pnpmSyncJsonPath, sourceFolder);
 

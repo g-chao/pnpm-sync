@@ -12,6 +12,8 @@ program
   .description('Execute actions defined under node_modules/.pnpm-sync.json')
   .usage('[OPTIONS]...')
   .option('-p, --prepare', 'Prepare the pnpm-sync.json')
+  .option('-s, --lockfile <value>', 'The pnpm-lock.yaml path')
+  .option('-s, --store <value>', 'The .pnpm folder path')
   .action(pnpmSync);
 
 program.parse();

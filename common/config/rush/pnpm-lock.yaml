@@ -74,7 +74,7 @@ importers:
     dependencies:
       lib1:
         specifier: workspace:*
-        version: file:../../libraries/lib1(react@16.9.0)
+        version: link:../../libraries/lib1
       pnpm-sync:
         specifier: workspace:*
         version: link:../../libraries/pnpm-sync
@@ -94,9 +94,6 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
-    dependenciesMeta:
-      lib1:
-        injected: true
 
   ../../libraries/lib1:
     dependencies:
@@ -143,9 +140,6 @@ importers:
       commander:
         specifier: ^11.1.0
         version: 11.1.0
-      json5:
-        specifier: ^2.2.3
-        version: 2.2.3
     devDependencies:
       '@types/jest':
         specifier: ^29.5.7
@@ -1834,8 +1828,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001561
-      electron-to-chromium: 1.4.581
+      caniuse-lite: 1.0.30001562
+      electron-to-chromium: 1.4.583
       node-releases: 2.0.13
       update-browserslist-db: 1.0.13(browserslist@4.22.1)
     dev: true
@@ -1927,8 +1921,8 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
 
-  /caniuse-lite@1.0.30001561:
-    resolution: {integrity: sha512-NTt0DNoKe958Q0BE0j0c1V9jbUzhBxHIEJy7asmGrpE0yG63KTV7PLHPnK2E1O9RsQrQ081I3NLuXGS6zht3cw==}
+  /caniuse-lite@1.0.30001562:
+    resolution: {integrity: sha512-kfte3Hym//51EdX4239i+Rmp20EsLIYGdPkERegTgU19hQWCRhsRFGKHTliUlsry53tv17K7n077Kqa0WJU4ng==}
     dev: true
 
   /chalk@2.4.2:
@@ -2343,8 +2337,8 @@ packages:
       safe-buffer: 5.2.1
     dev: false
 
-  /electron-to-chromium@1.4.581:
-    resolution: {integrity: sha512-6uhqWBIapTJUxgPTCHH9sqdbxIMPt7oXl0VcAL1kOtlU6aECdcMncCrX5Z7sHQ/invtrC9jUQUef7+HhO8vVFw==}
+  /electron-to-chromium@1.4.583:
+    resolution: {integrity: sha512-93y1gcONABZ7uqYe/JWDVQP/Pj/sQSunF0HVAPdlg/pfBnOyBMLlQUxWvkqcljJg1+W6cjvPuYD+r1Th9Tn8mA==}
     dev: true
 
   /emittery@0.13.1:

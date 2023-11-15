@@ -3,9 +3,9 @@ import { pnpmSyncCopy } from './pnpmSyncCopy';
 import { pnpmSyncPrepare } from './pnpmSyncPrepare';
 
 export async function pnpmSync(args: PnpmSyncCliArgs): Promise<void> {
-  const { prepare } = args;
+  const { prepare, lockfile, store } = args;;
   if (prepare) {
-    pnpmSyncPrepare();
+    pnpmSyncPrepare(lockfile, store);
   } else {
     pnpmSyncCopy()
   }

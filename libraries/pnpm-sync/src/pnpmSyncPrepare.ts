@@ -1,88 +1,91 @@
-
-import JSON5 from 'json5';
-import { FileSystem, Async } from '@rushstack/node-core-library';
-import { ALL_APP, PnpmSyncJson } from './interfaces';
-import { RushConfiguration } from '@microsoft/rush-lib';
-import { readWantedLockfile } from '@pnpm/lockfile-file';
+import { PnpmSyncJson } from './interfaces';
+import { readWantedLockfile, type Lockfile, type Dependencies } from '@pnpm/lockfile-file';
 import path from 'path';
+import fs from 'fs';
+import { exit } from 'process';
 
-export async function pnpmSyncPrepare(): Promise<void> {
+export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<void> {
   console.log('Generate pnpm-sync.json ...')
 
-  //get the pnpm-lock.yaml path
-  const appName = getAppName();
-  const pnpmLockFolder = getPnpmLockFolder(appName);
-  if (!FileSystem.exists(`${pnpmLockFolder}/pnpm-lock.yaml`)) {
-    // TODO, need to handle the situation where pnpm-lock.yaml is not exist.
-    return;
+  // get the pnpm-lock.yaml path
+  const lockfilePath = path.resolve(__dirname, lockfile);
+  const storePath = path.resolve(__dirname, store);
+
+  console.log('The pnpm-lock.yaml file path =>\n', lockfilePath);
+  console.log('The .pnpm folder path =>\n', storePath)
+
+  if (!fs.existsSync(lockfilePath)) {
+    console.log('The input pnpm-lock.yaml path is not correct!');
+    exit(1)
   }
-  //read the pnpm-lock.yaml
+
+  // read the pnpm-lock.yaml
+  const pnpmLockFolder = lockfilePath.slice(0, lockfilePath.length - 'pnpm-lock.yaml'.length);
   const pnpmLockfile = await readWantedLockfile(pnpmLockFolder, {ignoreIncompatible: true});
 
-  //generate injected app set
-  const injectedDependencyToFilePath: Map<string, Set<string>> = new Map();
 
-  for (const importerKey in pnpmLockfile?.importers) {
+  // find injected dependency and all its available versions
+  const injectedDependencyToVersion: Map<string, Set<string>> = getInjectedDependencyToVersion(pnpmLockfile);
+  
+  // generate a map, where key is the actual path of the injectedDependency, value is all available paths in .pnpm folder
+  const injectedDependencyToFilePathSet: Map<string, Set<string>> = new Map();
+  for (const [injectedDependency, injectedDependencyVersionSet] of injectedDependencyToVersion) {
+    for (const injectedDependencyVersion of injectedDependencyVersionSet) {
+      // this logic is heavily depends on pnpm-lock formate
+      // the current logic is for pnpm v8
+      // for example: file:../../libraries/lib1(react@16.0.0) -> ../../libraries/lib1
+      let injectedDependencyPath = injectedDependencyVersion.split('(')[0].slice('file:'.length);
+      injectedDependencyPath = path.resolve(pnpmLockFolder, injectedDependencyPath);
+      if (!injectedDependencyToFilePathSet.has(injectedDependencyPath)) {
+        injectedDependencyToFilePathSet.set(injectedDependencyPath, new Set());
+      }
 
-    // we want to build the pnpm-sync.json for the app is installing
-    if (appName === ALL_APP || importerKey.endsWith (`/${appName}`)) {
-      processDependencies (pnpmLockfile?.importers[importerKey]?.dependencies, injectedDependencyToFilePath);
-      processDependencies (pnpmLockfile?.importers[importerKey]?.devDependencies, injectedDependencyToFilePath);
+      injectedDependencyToFilePathSet.get(injectedDependencyPath)?.add(transferFilePathToPnpmStorePath(injectedDependencyVersion, injectedDependency, storePath))
     }
   }
 
-  //now, based on the injected dependency we found, generate the pnpm-sync.json
-  const rushConfiguration = RushConfiguration.loadFromDefaultLocation({
-    startingFolder: process.cwd()
-  });
-  
-  for (const project of rushConfiguration.projects) {
-    const { packageName, projectFolder } = project;
-    if (injectedDependencyToFilePath.has(packageName)) {
-      generatePnpmSyncJson(projectFolder, injectedDependencyToFilePath.get(packageName))
+
+  // now, we have everything we need to generate the the pnpm-sync.json
+  for (const [projectFolder, targetFolderSet] of injectedDependencyToFilePathSet) {
+    if (targetFolderSet.size === 0) {
+      continue;
     }
+
+    const pnpmSyncJsonPath = `${projectFolder}/node_modules/.pnpm-sync.json`;
+
+    let pnpmSyncJsonFile: PnpmSyncJson = {
+      postbuildInjectedCopy: {
+        sourceFolder: '../..',
+        targetFolders: []
+      }
+    }
+  
+    // if .pnpm-sync.json already exists, read it first
+    if (fs.existsSync(pnpmSyncJsonPath)) {
+      pnpmSyncJsonFile = JSON.parse(fs.readFileSync(pnpmSyncJsonPath).toString());
+    }
+  
+    const existingTargetFolderSet: Set<string> = new Set();
+  
+    for (const targetFolder of pnpmSyncJsonFile.postbuildInjectedCopy.targetFolders) {
+      existingTargetFolderSet.add(targetFolder.folderPath);
+    }
+  
+    for (const targetFolder of targetFolderSet) {
+      const relativePath = path.relative(pnpmSyncJsonPath, targetFolder);
+      if (!existingTargetFolderSet.has(relativePath)) {
+        pnpmSyncJsonFile.postbuildInjectedCopy.targetFolders.push({
+          folderPath: relativePath
+        })
+      }
+    }
+    fs.writeFileSync(pnpmSyncJsonPath, JSON.stringify(pnpmSyncJsonFile, null, 2));
+
+    console.log(`Generated pnpm-sync.json for package\n${projectFolder}`)
   }
 }
 
-function generatePnpmSyncJson (projectFolder: string, targetFolders: Set <string> | undefined) {
-  if (targetFolders === undefined) {
-    return;
-  }
-
-  const pnpmSyncJsonPath = `${projectFolder}/node_modules/.pnpm-sync.json`;
-
-  let pnpmSyncJsonFile: PnpmSyncJson = {
-    postbuildInjectedCopy: {
-      sourceFolder: '../..',
-      targetFolders: []
-    }
-  }
-
-  //if .pnpm-sync.json already exists, read it first
-  if (FileSystem.exists(pnpmSyncJsonPath)) {
-    pnpmSyncJsonFile = JSON.parse(FileSystem.readFile(pnpmSyncJsonPath).toString());
-  }
-
-  const existingTargetFolderSet: Set<string> = new Set();
-
-  for (const targetFolder of pnpmSyncJsonFile.postbuildInjectedCopy.targetFolders) {
-    existingTargetFolderSet.add(targetFolder.folderPath);
-  }
-
-  for (const targetFolder of targetFolders) {
-    const relativePath = path.relative(pnpmSyncJsonPath, targetFolder);
-    if (!existingTargetFolderSet.has(relativePath)) {
-      pnpmSyncJsonFile.postbuildInjectedCopy.targetFolders.push({
-        folderPath: relativePath
-      })
-    }
-  }
-  
-  // FileSystem.en(pnpmSyncJsonPath);
-  FileSystem.writeFile(pnpmSyncJsonPath, JSON.stringify(pnpmSyncJsonFile, null, 2));
-}
-
-function transferFilePathToPnpmStorePath (rawFilePath: string, dependencyName: string): string {
+function transferFilePathToPnpmStorePath (rawFilePath: string, dependencyName:string, storePath: string): string {
   // this logic is heavily depends on pnpm-lock formate
   // the current logic is for pnpm v8
 
@@ -103,52 +106,44 @@ function transferFilePathToPnpmStorePath (rawFilePath: string, dependencyName: s
   // 5. add dependencyName
   rawFilePath = rawFilePath + `/node_modules/${dependencyName}`
 
-  // 6. add pnpmStorePath
-  const rushConfiguration = RushConfiguration.loadFromDefaultLocation({
-    startingFolder: process.cwd()
-  });
-  let pnpmStorePath: string = rushConfiguration?.pnpmOptions?.pnpmStorePath;
-  pnpmStorePath = path.resolve(pnpmStorePath, '../node_modules/.pnpm');
-  
-  rawFilePath = pnpmStorePath + '/' + rawFilePath;
+  rawFilePath = storePath + '/' + rawFilePath;
 
   return rawFilePath
 }
 
+
 // process dependencies and devDependencies to generate injectedDependencyToFilePath
-function processDependencies (dependencies: any, injectedDependencyToFilePath: Map<string, Set<string>>): void {
-  if (dependencies) {
-    for (const dependency in dependencies) {
-      if (dependencies[dependency].startsWith('file:')){
-        if (!injectedDependencyToFilePath.has(dependency)) {
-          injectedDependencyToFilePath.set(dependency, new Set());
-        } 
-        const dependencyPnpmStorePath = transferFilePathToPnpmStorePath(dependencies[dependency], dependency);
-        injectedDependencyToFilePath.get(dependency)?.add(dependencyPnpmStorePath);
+function getInjectedDependencyToVersion (pnpmLockfile: Lockfile | null): Map<string, Set<string>> {
+  const injectedDependencyToVersion: Map<string, Set<string>> = new Map();
+  for (const importerKey in pnpmLockfile?.importers) {
+    const dependenciesMeta = pnpmLockfile?.importers[importerKey]?.dependenciesMeta;
+    if (!dependenciesMeta) {
+      continue;
+    }
+
+    for (const dependency in dependenciesMeta){
+      if (dependenciesMeta[dependency]?.injected){
+        if (!injectedDependencyToVersion.has(importerKey)) {
+          injectedDependencyToVersion.set(importerKey, new Set());
+        }
       }
     }
-  }
-}
 
-// detects the pnpm-sync is executed in which app
-function getAppName () : string {
-  const packageJsonPath = `${process.cwd()}/package.json`;
-  if (!FileSystem.exists(packageJsonPath)) {
-    // if no package.json found, we default it to all apps inside Monorepo
-    return ALL_APP;
+    // based on https://pnpm.io/package_json#dependenciesmeta
+    // the injected dependencies could available inside dependencies, optionalDependencies, and devDependencies.
+    processDependencies(pnpmLockfile?.importers[importerKey]?.dependencies, injectedDependencyToVersion);
+    processDependencies(pnpmLockfile?.importers[importerKey]?.devDependencies, injectedDependencyToVersion);
+    processDependencies(pnpmLockfile?.importers[importerKey]?.optionalDependencies, injectedDependencyToVersion);
   }
 
-  const packageJson = JSON5.parse(FileSystem.readFile(packageJsonPath).toString());
-  return packageJson.name;
+  return injectedDependencyToVersion;
 }
-
-// here we are assume the pnpm-sync lib will be used in a rush Monorepo
-function getPnpmLockFolder (appName: string) {  
-  // here, let's assume we are using common workspace
-  // need to refactor this when we introduce subspace to rush
-  const rushConfiguration = RushConfiguration.loadFromDefaultLocation({
-    startingFolder: process.cwd()
-  });
-
-  return rushConfiguration?.commonRushConfigFolder;
+function processDependencies(dependencies: Dependencies | undefined, injectedDependencyToVersion: Map<string, Set<string>>) {
+  if (dependencies) {
+    for (const dependency in dependencies) {
+      if (injectedDependencyToVersion.has(dependency)){
+        injectedDependencyToVersion.get(dependency)?.add(dependencies[dependency]);
+      }
+    }  
+  }
 }

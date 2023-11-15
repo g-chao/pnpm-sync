@@ -1,5 +1,7 @@
 export interface PnpmSyncCliArgs {
-  prepare: boolean
+  prepare: boolean,
+  lockfile: string,
+  store: string
 } 
 
 export interface PnpmSyncJson {

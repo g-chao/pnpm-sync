@@ -4,7 +4,8 @@
   "description": "",
   "module": "dist/index.js",
   "scripts": {
-    "build": "tsc && pnpm-sync",
+    "build": "tsc && rushx pnpm-sync",
+    "pnpm-sync": "pnpm-sync",
     "start": "tsc -w"
   },
   "keywords": [],
