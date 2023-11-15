@@ -26,6 +26,8 @@ export async function pnpmSyncCopy(): Promise<void> {
     await FileSystem.deleteFolderAsync(destinationPath);
   };
 
+  console.log(npmPackFiles);
+
   await Async.forEachAsync(
     npmPackFiles,
     async (npmPackFile: string) => {
@@ -38,6 +40,7 @@ export async function pnpmSyncCopy(): Promise<void> {
         await FileSystem.ensureFolderAsync(path.dirname(copyDestinationPath));
 
         // create a hard link to the destination path
+        console.log(copySourcePath, copyDestinationPath)
         await fs.promises.link(copySourcePath, copyDestinationPath);
       }
     },

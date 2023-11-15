@@ -44,7 +44,6 @@ export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<
     }
   }
 
-
   // now, we have everything we need to generate the the pnpm-sync.json
   for (const [projectFolder, targetFolderSet] of injectedDependencyToFilePathSet) {
     if (targetFolderSet.size === 0) {
@@ -123,8 +122,8 @@ function getInjectedDependencyToVersion (pnpmLockfile: Lockfile | null): Map<str
 
     for (const dependency in dependenciesMeta){
       if (dependenciesMeta[dependency]?.injected){
-        if (!injectedDependencyToVersion.has(importerKey)) {
-          injectedDependencyToVersion.set(importerKey, new Set());
+        if (!injectedDependencyToVersion.has(dependency)) {
+          injectedDependencyToVersion.set(dependency, new Set());
         }
       }
     }
