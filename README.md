@@ -10,7 +10,7 @@ You can check this [RFC](https://github.com/microsoft/rushstack/blob/octogonz/rf
 ### Folder structure
 
 This demo repo is built with rush. We set up few sample apps and libs to mimic the situation.<br>
-Under `apps` folder, we have three apps, `app1 and app2` have an injected workspace dependency `lib1`, `app3` has a normal workspace dependency.<br>
+Under `apps` folder, we have three apps, `app1 and app2` have an injected workspace dependency `lib1`, `app3` has a normal workspace dependency `lib1`.<br>
 The package.json for `app1 and app2`
 
 ```
