@@ -54,7 +54,7 @@ For projects have the normal workspace dependency `lib1`, the `lib1` will link t
 
 ### 2. Run `rush after-install` to generate the `pnpm-sync.json` file.
 
-This command will call `pnpm-sync --prepare` eventually.<br>
+This command will call `pnpm-sync prepare` eventually.<br>
 
 You can check `node_modules` folder under `lib1`, you will the `pnpm-sync.json` file, like below:
 
