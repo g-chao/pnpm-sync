@@ -2,7 +2,7 @@
   "name": "pnpm-sync",
   "version": "0.0.1",
   "description": "pnpm-sync command should be invoked for any library projects that have been installed as an injected dependency.",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "private": true,
   "scripts": {
     "test": "jest",
@@ -15,7 +15,7 @@
     "dist"
   ],
   "bin": {
-    "pnpm-sync": "bin.js"
+    "pnpm-sync": "bin/pnpm-sync.js"
   },
   "author": "chao@geekchao.com",
   "dependencies": {

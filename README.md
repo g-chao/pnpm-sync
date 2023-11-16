@@ -2,8 +2,13 @@
 
 ## Background
 
-This repo is to demo the pnpm-sync command.<br>
-You can check this [RFC](https://github.com/microsoft/rushstack/blob/octogonz/rfc-4320-rush-subspaces/common/docs/rfcs/rfc-4230-rush-subspaces.md) for learn more about the background.
+This repository shows a proof-of-concept implementation of the "pnpm-sync" command that is proposed in the Rush [Subspaces RFC #4230](https://github.com/microsoft/rushstack/issues/4230).The PNPM package manager installs "injected" dependencies by copying the build output of a local workspace project into one or more symlinked node_modules subfolders. Today PNPM performs this copying only once during the initial "pnpm install", but that is not a complete solution; the output should really be copied whenever the project is rebuilt. The proposed `pnpm-sync` command provides a way to perform this copying after a workspace project is compiled (before its consumers are compiled). The operation is optimized by precomputing the source/target folder locations and storing this information in a new file (`<your-library>/node_modules/.pnpm-sync.json`). In our implementation, `pnpm-sync --prepare` writes that JSON file, and `pnpm-sync` reads the JSON file and performs the copy.
+
+### Next steps:
+
+This prototype was created to facilitate discussion about the design of the `pnpm-sync` command.
+Our next step will be to fully implement this feature in the [RushJS](https://rushjs.io) tool (as part of the upcoming "subspaces" feature).
+If that is successful, we will then propose to integrate the `pnpm-sync` functionality directly into the official PNPM package manager.
 
 ## Folder structure
 
@@ -68,18 +73,17 @@ You can check `node_modules` folder under `lib1`, you will the `pnpm-sync.json` 
 }
 ```
 
-This step will be integrated to `rush install` in the later milestone.
+This awkward extra step of `rush after-install` is to simplify the prototype, the "pnpm-sync" source code is in the same workspace as the test projects.<br>
+Long term, the `pnpm-sync` prototype will be published as an NPM package, and we propose to integrate it directly into the "pnpm" project.
 
 ### 3. Rush `rush build` to build the project
 
-Normally, without injected dependencies, after this step, you can continue to the development. However, with injected dependencies, things are little different.<br>
-Let's say, `app1` depends on `lib1`, and we made some changes on `lib1`. Now, we re-run the `rush build` to build the app again. We think the `app1` will use pick the latest changes from `lib1`, but it does not. <br>
-This is due to `lib1` is an injected dependency, under `app1` node_modules folder, the `lib1` is not symlink to its source code location, but to the pnpm store location.<br>
-Ok, how to fix it?
+If you check build script for `lib1`, you will see that it will execute `pnpm-sync` after project compiled. The `pnpm-sync` command will copy the build output to the target folders based on the `pnpm-sync.json` file we generated previously.
 
-### 4. Rush `pnpm-sync` under lib1
-
-Now, we understand the problem, one solution is, we can copy the build output to all locations needed every time we build this project.<br>
-Run `pnpm run pnpm-sync` under lib1, it will copy the build output to the target folders based on the `pnpm-sync.json` file we generated previously.
-
-This step will be integrated to `rush build` in the later milestone.
+```
+{
+  "scripts": {
+    "build": "tsc && pnpm-sync"
+  }
+}
+```
