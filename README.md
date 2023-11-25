@@ -88,3 +88,9 @@ If you check build script for `lib1`, you will see that it will execute `pnpm-sy
   }
 }
 ```
+
+## 💬 Tell us what you think
+
+If you have any questions/suggestions about this feature idea, please comment on the upstream GitHub issue:
+
+[(pnpm/pnpm#4407) Injected dependencies are not recopied after a workspace project is rebuilt](https://github.com/pnpm/pnpm/issues/4407)
