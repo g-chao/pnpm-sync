@@ -20,6 +20,8 @@ export async function pnpmSync(): Promise<void> {
   //get npmPackFiles
   const npmPackFiles: string[] = await PackageExtractor.getPackageIncludedFilesAsync(sourcePath);
 
+  console.time(`pnpm-sync => ${sourcePath}, total ${npmPackFiles.length} files`);
+
   //clear the destination folder first
   for (const targetFolder of targetFolders) {
     const destinationPath = path.resolve(pnpmSyncJsonPath, targetFolder.folderPath);
@@ -45,4 +47,6 @@ export async function pnpmSync(): Promise<void> {
       concurrency: 10
     }
   );
+
+  console.timeEnd(`pnpm-sync => ${sourcePath}, total ${npmPackFiles.length} files`);
 }

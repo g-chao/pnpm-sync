@@ -14,7 +14,7 @@ program
 
 program.command('prepare')
   .description('Generate the pnpm-sync.json based on pnpm-lock.yaml file path and .pnpm folder path')
-  .requiredOption('-s, --lockfile <value>', 'The pnpm-lock.yaml file path')
+  .requiredOption('-l, --lockfile <value>', 'The pnpm-lock.yaml file path')
   .requiredOption('-s, --store <value>', 'The .pnpm folder path')
   .action(options => {
     const { lockfile, store } = options;

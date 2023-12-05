@@ -2,22 +2,24 @@ import { PnpmSyncJson } from './interfaces';
 import { readWantedLockfile, type Lockfile, type Dependencies } from '@pnpm/lockfile-file';
 import path from 'path';
 import fs from 'fs';
-import { exit } from 'process';
+import { exit, cwd } from 'process';
 
 export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<void> {
   console.log('Generate pnpm-sync.json ...')
 
   // get the pnpm-lock.yaml path
-  const lockfilePath = path.resolve(__dirname, lockfile);
-  const storePath = path.resolve(__dirname, store);
+  const lockfilePath = path.resolve(cwd(), lockfile);
+  const storePath = path.resolve(cwd(), store);
 
-  console.log('The pnpm-lock.yaml file path =>\n', lockfilePath);
-  console.log('The .pnpm folder path =>\n', storePath)
+  console.log('The pnpm-lock.yaml file path =>', lockfilePath);
+  console.log('The .pnpm folder path =>', storePath)
 
   if (!fs.existsSync(lockfilePath)) {
     console.log('The input pnpm-lock.yaml path is not correct!');
     exit(1)
   }
+
+  console.time(`pnpm-sync prepare`);
 
   // read the pnpm-lock.yaml
   const pnpmLockFolder = lockfilePath.slice(0, lockfilePath.length - 'pnpm-lock.yaml'.length);
@@ -45,6 +47,7 @@ export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<
   }
 
   // now, we have everything we need to generate the the pnpm-sync.json
+  console.log('injectedDependencyToFilePathSet =>', injectedDependencyToFilePathSet);
   for (const [projectFolder, targetFolderSet] of injectedDependencyToFilePathSet) {
     if (targetFolderSet.size === 0) {
       continue;
@@ -79,9 +82,8 @@ export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<
       }
     }
     fs.writeFileSync(pnpmSyncJsonPath, JSON.stringify(pnpmSyncJsonFile, null, 2));
-
-    console.log(`Generated pnpm-sync.json for package\n${projectFolder}`)
   }
+  console.timeEnd(`pnpm-sync prepare`);
 }
 
 function transferFilePathToPnpmStorePath (rawFilePath: string, dependencyName:string, storePath: string): string {
