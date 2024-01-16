@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "pnpm-sync command should be invoked for any library projects that have been installed as an injected dependency.",
   "main": "dist/src/index.js",
-  "private": true,
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
