@@ -1,11 +1,10 @@
 {
   "name": "pnpm-sync",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "pnpm-sync command should be invoked for any library projects that have been installed as an injected dependency.",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
     "build": "tsc",
     "start": "tsc -w",
     "prepublishOnly": "npm run build"
@@ -13,12 +12,8 @@
   "files": [
     "dist"
   ],
-  "bin": {
-    "pnpm-sync": "bin/pnpm-sync.js"
-  },
-  "author": "chao@geekchao.com",
+  "author": "chao.guo@bytedance.com",
   "dependencies": {
-    "commander": "^11.1.0",
     "@rushstack/node-core-library": "^3.61.0",
     "@rushstack/package-extractor": "^0.6.12",
     "@microsoft/rush-lib": "~5.110.1",
@@ -26,10 +21,7 @@
     "@pnpm/logger": "~5.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.7",
     "@types/node": "^20.8.10",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
   }
 }

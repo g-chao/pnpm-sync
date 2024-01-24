@@ -2,7 +2,7 @@ import { PnpmSyncJson } from './interfaces';
 import { readWantedLockfile, type Lockfile, type Dependencies } from '@pnpm/lockfile-file';
 import path from 'path';
 import fs from 'fs';
-import { exit, cwd } from 'process';
+import { cwd } from 'process';
 
 export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<void> {
   console.log('Generate pnpm-sync.json ...')
@@ -15,8 +15,7 @@ export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<
   console.log('The .pnpm folder path =>', storePath)
 
   if (!fs.existsSync(lockfilePath)) {
-    console.log('The input pnpm-lock.yaml path is not correct!');
-    exit(1)
+    throw Error('The input pnpm-lock.yaml path is not correct!')
   }
 
   console.time(`pnpm-sync prepare`);
@@ -47,7 +46,7 @@ export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<
   }
 
   // now, we have everything we need to generate the the pnpm-sync.json
-  console.log('injectedDependencyToFilePathSet =>', injectedDependencyToFilePathSet);
+  // console.log('injectedDependencyToFilePathSet =>', injectedDependencyToFilePathSet);
   for (const [projectFolder, targetFolderSet] of injectedDependencyToFilePathSet) {
     if (targetFolderSet.size === 0) {
       continue;
@@ -87,7 +86,7 @@ export async function pnpmSyncPrepare(lockfile: string, store: string): Promise<
 }
 
 function transferFilePathToPnpmStorePath (rawFilePath: string, dependencyName:string, storePath: string): string {
-  // this logic is heavily depends on pnpm-lock formate
+  // this logic is heavily depends on pnpm-lock format
   // the current logic is for pnpm v8
 
   // an example, file:../../libraries/lib1(react@16.0.0) -> file+..+..+libraries+lib1_react@16.9.0

@@ -4,7 +4,7 @@
   "description": "",
   "module": "dist/index.js",
   "scripts": {
-    "build": "tsc && pnpm-sync",
+    "build": "tsc && pnpm-sync-cli",
     "start": "tsc -w"
   },
   "keywords": [],
@@ -18,7 +18,7 @@
     "dist"
   ],
   "dependencies": {
-    "pnpm-sync": "workspace:*"
+    "pnpm-sync-cli": "workspace:*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.7",

@@ -1,0 +1,25 @@
+{
+  "name": "pnpm-sync-cli",
+  "version": "0.0.1",
+  "description": "A CLI tool for pnpm-sync lib.",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc -w",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "pnpm-sync": "bin/pnpm-sync-cli.js"
+  },
+  "author": "chao.guo@bytedance.com",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "pnpm-sync": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.10",
+    "typescript": "^5.2.2"
+  }
+}

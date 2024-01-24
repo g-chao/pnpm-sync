@@ -407,6 +407,10 @@
       "projectFolder": "libraries/pnpm-sync"
     },
     {
+      "packageName": "pnpm-sync-cli",
+      "projectFolder": "libraries/pnpm-sync-cli"
+    },
+    {
       "packageName": "lib1",
       "projectFolder": "libraries/lib1"
     },

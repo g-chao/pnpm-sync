@@ -1,12 +1,9 @@
 import { Command } from 'commander';
-
-import { version } from '../package.json';
-
-import { pnpmSync, pnpmSyncPrepare } from '.';
+import { pnpmSync, pnpmSyncPrepare } from 'pnpm-sync';
 
 const program = new Command();
 
-program.version(version);
+program.version(require('../package.json').version);
 
 program
   .description('Execute the copy action based on the plan defined under node_modules/.pnpm-sync.json')
@@ -18,7 +15,12 @@ program.command('prepare')
   .requiredOption('-s, --store <value>', 'The .pnpm folder path')
   .action(options => {
     const { lockfile, store } = options;
-    pnpmSyncPrepare(lockfile, store);
+    try {
+      pnpmSyncPrepare(lockfile, store);
+    } catch (error) {
+      console.log(error);
+    }
+    
   });
 
 program.parse();
